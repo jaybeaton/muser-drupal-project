@@ -74,6 +74,8 @@
         "drupal/views_bulk_operations": "^2.4",
         "drupal/views_data_export": "^1.0",
         "drush/drush": "^9.0.0",
+        "harvesthq/chosen": "^1.8",
+        "oomphinc/composer-installers-extender": "^1.1",
         "vlucas/phpdotenv": "^2.4",
         "webflo/drupal-finder": "^1.0.0",
         "webmozart/path-util": "^2.3",
@@ -118,12 +120,16 @@
         },
         "installer-paths": {
             "web/core": ["type:drupal-core"],
-            "web/libraries/{$name}": ["type:drupal-library"],
+            "web/libraries/{$name}": [
+                "type:drupal-library",
+                "harvesthq/chosen"
+            ],
             "web/modules/contrib/{$name}": ["type:drupal-module"],
             "web/profiles/contrib/{$name}": ["type:drupal-profile"],
             "web/themes/contrib/{$name}": ["type:drupal-theme"],
             "drush/Commands/{$name}": ["type:drupal-drush"]
         },
+        "installer-types": ["library"],
         "drupal-scaffold": {
             "initial": {
                 ".editorconfig": "../.editorconfig",
