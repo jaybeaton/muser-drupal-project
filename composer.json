@@ -1,0 +1,153 @@
+{
+    "name": "jaybeaton/muser-drupal-project",
+    "description": "Project template for Drupal 8 Muser projects with composer",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "",
+            "role": ""
+        }
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
+    "require": {
+        "composer/installers": "^1.2",
+        "cweagans/composer-patches": "^1.6.5",
+        "drupal-composer/drupal-scaffold": "^2.5",
+        "drupal/admin_toolbar": "^1.23",
+        "drupal/basicshib": "^1.0@alpha",
+        "drupal/better_exposed_filters": "^3.0@alpha",
+        "drupal/chosen": "^2.6",
+        "drupal/config_ignore": "^2.1",
+        "drupal/config_split": "^1.4",
+        "drupal/console": "^1.0.2",
+        "drupal/contact_block": "^1.4",
+        "drupal/core": "^8.6",
+        "drupal/ctools": "^3.0",
+        "drupal/datetimehideseconds": "1.x-dev",
+        "drupal/devel": "^1.2",
+        "drupal/entity_reference_exposed_filters": "^1.0@alpha",
+        "drupal/entity_reference_revisions": "^1.6",
+        "drupal/field_group": "^1.0",
+        "drupal/flag": "^4.0@alpha",
+        "drupal/flag_conditional_confirm": "1.x-dev",
+        "drupal/fontawesome_iconpicker": "^1.0@beta",
+        "drupal/google_analytics": "^2.2",
+        "drupal/honeypot": "^1.27",
+        "drupal/link_attributes": "^1.2",
+        "drupal/masquerade": "^2.0@beta",
+        "drupal/maxlength": "^1.0@beta",
+        "drupal/metatag": "^1.5",
+        "drupal/muser": "1.x-dev",
+        "drupal/pathauto": "^1.1",
+        "drupal/queue_mail": "^1.0@alpha",
+        "drupal/rabbit_hole": "^1.0@beta",
+        "drupal/realname": "^1.0@RC",
+        "drupal/redirect": "^1.1",
+        "drupal/roleassign": "^1.0@alpha",
+        "drupal/smtp": "^1.0@beta",
+        "drupal/token": "^1.1",
+        "drupal/views_ajax_history": "^1.0",
+        "drupal/views_bulk_operations": "^2.4",
+        "drupal/views_data_export": "^1.0",
+        "drush/drush": "^9.0.0",
+        "vlucas/phpdotenv": "^2.4",
+        "webflo/drupal-finder": "^1.0.0",
+        "webmozart/path-util": "^2.3",
+        "zaporylie/composer-drupal-optimizations": "^1.0"
+    },
+    "require-dev": {
+        "webflo/drupal-core-require-dev": "^8.6.0"
+    },
+    "conflict": {
+        "twig/twig": "1.38",
+        "drupal/drupal": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    },
+    "autoload": {
+        "classmap": [
+            "scripts/composer/ScriptHandler.php"
+        ],
+        "files": ["load.environment.php"]
+    },
+    "scripts": {
+        "pre-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "pre-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "post-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "post-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ]
+    },
+    "extra": {
+        "composer-exit-on-patch-failure": true,
+        "patchLevel": {
+            "drupal/core": "-p2"
+        },
+        "installer-paths": {
+            "web/core": ["type:drupal-core"],
+            "web/libraries/{$name}": ["type:drupal-library"],
+            "web/modules/contrib/{$name}": ["type:drupal-module"],
+            "web/profiles/contrib/{$name}": ["type:drupal-profile"],
+            "web/themes/contrib/{$name}": ["type:drupal-theme"],
+            "drush/Commands/{$name}": ["type:drupal-drush"]
+        },
+        "drupal-scaffold": {
+            "initial": {
+                ".editorconfig": "../.editorconfig",
+                ".gitattributes": "../.gitattributes"
+            }
+        },
+        "patches": {
+            "drupal/basicshib": {
+                "Authentication status problem after Shibboleth timeout": "https://www.drupal.org/files/issues/2019-03-01/3036887-2.onrequest-event-priority.patch",
+                "'after_login' parameter value in login URL is incorrect when user is on page requiring authentication": "https://www.drupal.org/files/issues/2019-03-01/3036894-2.redirect-url-after-login.patch"
+            },
+            "drupal/better_exposed_filters": {
+                "Notice: Undefined index: #summary_attributes in template_preprocess_details()": "https://www.drupal.org/files/issues/2018-10-05/bef-summary-attributes-3001967-4.patch"
+            },
+            "drupal/config_ignore": {
+                "Support for export filtering via Drush": "https://www.drupal.org/files/issues/2018-04-19/support-for-export-2857247-18.patch"
+            },
+            "drupal/core": {
+                "Allow Tours to be taken by users that cannot access the Toolbar (e.g. anonymous users)": "patches/2069073-64.local-reroll.patch",
+                "TypeError: Argument 1 passed to _editor_get_file_uuids_by_field() must implement interface Drupal\\\\Core\\\\Entity\\\\EntityInterface - Issue for users created by Shib": "https://www.drupal.org/files/issues/2018-11-08/2974156-editor-typeerror-9.patch",
+                "Add jQuery Timepicker for the Time element of the datetime field": "patches/1838234-8.6-jQuery_timepicker_step.patch"
+            },
+            "drupal/entity_reference_revisions": {
+                "Views doesn't recognize relationship to host": "patches/2799479-65-views-rel-fix.local-reroll.patch"
+            },
+            "drupal/flag": {
+                "Error creating VBO fields with flag enabled": "https://www.drupal.org/files/issues/2018-09-18/2893259-27.patch",
+                "Add basic theming for Flagging entities": "https://www.drupal.org/files/issues/2019-01-28/2460141-9.theme-flagging-entity.patch"
+            },
+            "drupal/fontawesome_iconpicker": {
+                "Support v3 of fontawesome-iconpicker libary": "patches/fontawesome_iconpicker-support-v3-library.patch"
+            },
+            "drupal/masquerade": {
+                "Allow UnMasquerade link in the \"Masquerade\" block": "https://www.drupal.org/files/issues/2019-03-05/2900413-8.show-unmasquerade-link-in-block.patch"
+            },
+            "drupal/maxlength": {
+                "Maxlength only for summary field": "https://www.drupal.org/files/issues/maxlength-limit_only_summary-2798903-2.patch"
+            },
+            "drupal/queue_mail": {
+               "Email throttling with minimum waiting time": "https://www.drupal.org/files/issues/2019-03-07/2165023-5.add-wait-time.patch",
+               "Provide return value to indicate that mail was successfully queued": "https://www.drupal.org/files/issues/2019-03-12/3039506-2.add-return-value.patch"
+            }
+        }
+    }
+}
