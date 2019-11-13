@@ -13,6 +13,24 @@
         {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "farbelous/fontawesome-iconpicker",
+                "version": "v1.3.1",
+                "type": "drupal-library",
+                "extra": {
+                    "installer-name": "fontawesome-iconpicker"
+                },
+                "dist": {
+                    "url": "https://github.com/farbelous/fontawesome-iconpicker/archive/1.3.1.zip",
+                    "type": "zip"
+                },
+                "require": {
+                    "composer/installers": "~1.0"
+                }
+            }
         }
     ],
     "require": {
@@ -129,10 +147,9 @@
                 "Add jQuery Timepicker for the Time element of the datetime field": "patches/1838234-8.6-jQuery_timepicker_step.patch"
             },
             "drupal/entity_reference_revisions": {
-                "Views doesn't recognize relationship to host": "patches/2799479-65-views-rel-fix.local-reroll.patch"
+                "Views doesn't recognize relationship to host": "https://www.drupal.org/files/issues/2019-10-07/2799479-91-DO_NOT_COMMIT.patch"
             },
             "drupal/flag": {
-                "Error creating VBO fields with flag enabled": "https://www.drupal.org/files/issues/2018-09-18/2893259-27.patch",
                 "Add basic theming for Flagging entities": "https://www.drupal.org/files/issues/2019-01-28/2460141-9.theme-flagging-entity.patch"
             },
             "drupal/fontawesome_iconpicker": {
@@ -141,11 +158,7 @@
             "drupal/masquerade": {
                 "Allow UnMasquerade link in the \"Masquerade\" block": "https://www.drupal.org/files/issues/2019-03-05/2900413-8.show-unmasquerade-link-in-block.patch"
             },
-            "drupal/maxlength": {
-                "Maxlength only for summary field": "https://www.drupal.org/files/issues/maxlength-limit_only_summary-2798903-2.patch"
-            },
             "drupal/queue_mail": {
-               "Email throttling with minimum waiting time": "https://www.drupal.org/files/issues/2019-03-07/2165023-5.add-wait-time.patch",
                "Provide return value to indicate that mail was successfully queued": "https://www.drupal.org/files/issues/2019-03-12/3039506-2.add-return-value.patch"
             }
         }

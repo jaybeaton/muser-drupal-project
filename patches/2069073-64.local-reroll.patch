@@ -1,0 +1,306 @@
+diff --git a/core/modules/tour/js/tour.es6.js b/core/modules/tour/js/tour.es6.js
+index b4dcb7ab..3fb11ef5 100644
+--- a/core/modules/tour/js/tour.es6.js
++++ b/core/modules/tour/js/tour.es6.js
+@@ -30,7 +30,7 @@
+         .each(() => {
+           const model = new Drupal.tour.models.StateModel();
+           new Drupal.tour.views.ToggleTourView({
+-            el: $(context).find('#toolbar-tab-tour'),
++            el: $(context).find('.js-tour-start-button'),
+             model,
+           });
+
+diff --git a/core/modules/tour/js/tour.js b/core/modules/tour/js/tour.js
+index 8893fc3b..653d397f 100644
+--- a/core/modules/tour/js/tour.js
++++ b/core/modules/tour/js/tour.js
+@@ -13,7 +13,7 @@
+       $('body').once('tour').each(function () {
+         var model = new Drupal.tour.models.StateModel();
+         new Drupal.tour.views.ToggleTourView({
+-          el: $(context).find('#toolbar-tab-tour'),
++          el: $(context).find('.js-tour-start-button'),
+           model: model
+         });
+
+diff --git a/core/modules/tour/src/Plugin/Block/TourButtonBlock.php b/core/modules/tour/src/Plugin/Block/TourButtonBlock.php
+new file mode 100644
+index 00000000..1cdebde9
+--- /dev/null
++++ b/core/modules/tour/src/Plugin/Block/TourButtonBlock.php
+@@ -0,0 +1,64 @@
++<?php
++
++namespace Drupal\tour\Plugin\Block;
++
++use Drupal\Core\Access\AccessResult;
++use Drupal\Core\Block\BlockBase;
++use Drupal\Core\Session\AccountInterface;
++
++/**
++ * Provides a block containing a Tour button.
++ *
++ * @Block(
++ *   id = "tour_button_block",
++ *   admin_label = @Translation("Tour button")
++ * )
++ */
++class TourButtonBlock extends BlockBase {
++
++  /**
++   * {@inheritdoc}
++   */
++  public function build() {
++    $build = [
++      'button' => [
++        '#type' => 'html_tag',
++        '#tag' => 'button',
++        '#value' => $this->t('Take a tour'),
++        '#attributes' => [
++          'aria-pressed' => 'false',
++          'type' => 'button',
++          'class' => ['tour-button'],
++        ],
++      ],
++      '#attributes' => [
++        'class' => ['hidden', 'js-tour-start-button'],
++      ],
++      '#attached' => [
++        'library' => [
++          'tour/tour',
++          'tour/tour-styling',
++        ],
++      ],
++    ];
++
++    return $build;
++  }
++
++  /**
++   * {@inheritdoc}
++   */
++  public function defaultConfiguration() {
++    return [
++      'label_display' => FALSE,
++    ] + parent::defaultConfiguration();
++  }
++
++  /**
++   * {@inheritdoc}
++   */
++  protected function blockAccess(AccountInterface $account) {
++    return AccessResult::allowedIfHasPermission($account, 'access tour');
++  }
++
++}
+diff --git a/core/modules/tour/tests/src/FunctionalJavascript/TourButtonBlockTest.php b/core/modules/tour/tests/src/FunctionalJavascript/TourButtonBlockTest.php
+new file mode 100644
+index 00000000..5a64e42a
+--- /dev/null
++++ b/core/modules/tour/tests/src/FunctionalJavascript/TourButtonBlockTest.php
+@@ -0,0 +1,81 @@
++<?php
++
++namespace Drupal\Tests\tour\FunctionalJavascript;
++
++use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
++use Drupal\user\RoleInterface;
++
++/**
++ * Tests that tours can be started through the tour button block.
++ *
++ * @group tour
++ */
++class TourButtonBlockTest extends WebDriverTestBase {
++
++  /**
++   * {@inheritdoc}
++   */
++  public static $modules = ['block', 'tour', 'tour_test'];
++
++  /**
++   * {@inheritdoc}
++   */
++  protected function setUp() {
++    parent::setUp();
++
++    // Place the tour button block in the sidebar.
++    $this->drupalPlaceBlock('tour_button_block');
++
++    // Grant permission to view tours to anonymous users.
++    user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, ['access tour']);
++  }
++
++  /**
++   * Tests that tours can be started using the tour button block.
++   */
++  public function testTourButtonBlock() {
++    // Check that the tour button is not visible on a page that does not offer a
++    // tour.
++    $this->drupalGet('user');
++    $this->assertFalse($this->getTourButton()->isVisible());
++
++    // Check that tours can be started by anonymous users if they have the
++    // relevant permission and the block with the tour button is present.
++    $this->drupalGet('tour-test-1');
++
++    // The tour button should be visible.
++    $this->assertTrue($this->getTourButton()->isVisible());
++    $this->assertEquals($this->getTourButton()->getText(), 'Take a tour');
++
++    // The tour should not yet have been started, so the first tour tip should
++    // not be visible.
++    $tour_tip = $this->getSession()->getPage()->find('css', '.tip-tour-test-1');
++    $this->assertFalse($tour_tip->isVisible());
++
++    // Click the button. Now the tour tip should become visible.
++    $this->getTourButton()->click();
++    $this->assertJsCondition("jQuery('.tip-tour-test-1').is(':visible')", 10000);
++
++    // When the user doesn't have permission to view tours, the button should
++    // not be present.
++    user_role_revoke_permissions(RoleInterface::ANONYMOUS_ID, ['access tour']);
++    $this->getSession()->getDriver()->reload();
++    $this->assertFalse($this->getTourButton());
++  }
++
++  /**
++   * Returns the tour button that is present in the page.
++   *
++   * @return \Behat\Mink\Element\NodeElement|FALSE
++   *   The tour button, or FALSE if there is no tour button.
++   */
++  protected function getTourButton() {
++    /** @var \Behat\Mink\Element\NodeElement[] $elements */
++    $elements = $this->cssSelect('.js-tour-start-button button');
++    if (empty($elements)) {
++      return FALSE;
++    }
++    return reset($elements);
++  }
++
++}
+diff --git a/core/modules/tour/tour.module b/core/modules/tour/tour.module
+index ce9f3092..55a34ee9 100644
+--- a/core/modules/tour/tour.module
++++ b/core/modules/tour/tour.module
+@@ -58,7 +58,7 @@ function tour_toolbar() {
+       ],
+     ],
+     '#wrapper_attributes' => [
+-      'class' => ['tour-toolbar-tab', 'hidden'],
++      'class' => ['tour-toolbar-tab', 'hidden', 'js-tour-start-button'],
+       'id' => 'toolbar-tab-tour',
+     ],
+     '#attached' => [
+diff --git a/core/themes/bartik/bartik.libraries.yml b/core/themes/bartik/bartik.libraries.yml
+index 3bbecd93..f51b9019 100644
+--- a/core/themes/bartik/bartik.libraries.yml
++++ b/core/themes/bartik/bartik.libraries.yml
+@@ -46,6 +46,7 @@ global-styling:
+       css/components/tabs.css: {}
+       css/components/text-formatted.css: {}
+       css/components/toolbar.css: {}
++      css/components/tour.theme.css: {}
+       css/components/featured-bottom.css: {}
+       css/components/password-suggestions.css: {}
+       css/components/ui.widget.css: {}
+diff --git a/core/themes/bartik/images/icons/000000/questionmark-disc.svg b/core/themes/bartik/images/icons/000000/questionmark-disc.svg
+new file mode 100644
+index 00000000..e65b2c4f
+--- /dev/null
++++ b/core/themes/bartik/images/icons/000000/questionmark-disc.svg
+@@ -0,0 +1 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path fill="#000000" d="M8.002 1c-3.868 0-7.002 3.134-7.002 7s3.134 7 7.002 7c3.865 0 7-3.134 7-7s-3.135-7-7-7zm3 5c0 .551-.16 1.085-.477 1.586l-.158.22c-.07.093-.189.241-.361.393-.168.148-.35.299-.545.447l-.203.189-.141.129-.096.17-.021.235v.63h-2.001v-.704c.026-.396.078-.73.204-.999.125-.269.271-.498.439-.688l.225-.21-.01-.015.176-.14.137-.128c.186-.139.357-.277.516-.417l.148-.18c.098-.152.168-.323.168-.518 0-.552-.447-1-1-1s-1.002.448-1.002 1h-2c0-1.657 1.343-3 3.002-3 1.656 0 3 1.343 3 3zm-1.75 6.619c0 .344-.281.625-.625.625h-1.25c-.345 0-.626-.281-.626-.625v-1.238c0-.344.281-.625.626-.625h1.25c.344 0 .625.281.625.625v1.238z"/></svg>
+diff --git a/core/themes/seven/css/components/tour.theme.css b/core/themes/seven/css/components/tour.theme.css
+index 6509ff89..42d391e3 100644
+--- a/core/themes/seven/css/components/tour.theme.css
++++ b/core/themes/seven/css/components/tour.theme.css
+@@ -101,3 +101,79 @@
+ .joyride-expose-cover {
+   background: transparent;
+ }
++
++.block-tour-button-block .tour-button {
++  background-position: left center;
++  padding-left: 2.75em;
++  padding-right: 1.3333em;
++  text-indent: 0;
++  width: auto;
++  position: relative;
++  color: #3b3b3b;
++}
++
++[dir="rtl"] .block-tour-button-block .tour-button {
++  background-position: right center;
++  padding-left: 1.3333em;
++  padding-right: 2.75em;
++}
++
++.block-tour-button-block .tour-button:before {
++  background: url(../../images/icons/000000/questionmark-disc.svg) center center no-repeat scroll transparent;
++  background-size: 100% auto;
++  content: '';
++  display: block;
++  height: 100%;
++  left: 0.6667em; /* LTR */
++  position: absolute;
++  top: 0;
++  width: 20px;
++}
++
++[dir="rtl"] .block-tour-button-block .tour-button:before {
++  left: auto;
++  right: 0.6667em;
++}
++
++.block-tour-button-block .tour-button:active:before,
++.block-tour-button-block .tour-button.is-active:before {
++  background-image: url(../../images/icons/000000/questionmark-disc.svg);
++}
++
++.block-tour-button-block .tour-button {
++  background-position: left center;
++  padding-left: 2.75em;
++  padding-right: 1.3333em;
++  text-indent: 0;
++  width: auto;
++  position: relative;
++  color: #3b3b3b;
++}
++
++[dir="rtl"] .block-tour-button-block .tour-button {
++  background-position: right center;
++  padding-left: 1.3333em;
++  padding-right: 2.75em;
++}
++
++.block-tour-button-block .tour-button:before {
++  background: url(../images/questionmark-disc.svg) center center no-repeat scroll transparent;
++  background-size: 100% auto;
++  content: '';
++  display: block;
++  height: 100%;
++  left: 0.6667em; /* LTR */
++  position: absolute;
++  top: 0;
++  width: 20px;
++}
++
++[dir="rtl"] .block-tour-button-block .tour-button:before {
++  left: auto;
++  right: 0.6667em;
++}
++
++.block-tour-button-block .tour-button:active:before,
++.block-tour-button-block .tour-button.is-active:before {
++  background-image: url(../images/questionmark-disc.svg);
++}
+diff --git a/core/themes/seven/images/icons/000000/questionmark-disc.svg b/core/themes/seven/images/icons/000000/questionmark-disc.svg
+new file mode 100644
+index 00000000..e65b2c4f
+--- /dev/null
++++ b/core/themes/seven/images/icons/000000/questionmark-disc.svg
+@@ -0,0 +1 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path fill="#000000" d="M8.002 1c-3.868 0-7.002 3.134-7.002 7s3.134 7 7.002 7c3.865 0 7-3.134 7-7s-3.135-7-7-7zm3 5c0 .551-.16 1.085-.477 1.586l-.158.22c-.07.093-.189.241-.361.393-.168.148-.35.299-.545.447l-.203.189-.141.129-.096.17-.021.235v.63h-2.001v-.704c.026-.396.078-.73.204-.999.125-.269.271-.498.439-.688l.225-.21-.01-.015.176-.14.137-.128c.186-.139.357-.277.516-.417l.148-.18c.098-.152.168-.323.168-.518 0-.552-.447-1-1-1s-1.002.448-1.002 1h-2c0-1.657 1.343-3 3.002-3 1.656 0 3 1.343 3 3zm-1.75 6.619c0 .344-.281.625-.625.625h-1.25c-.345 0-.626-.281-.626-.625v-1.238c0-.344.281-.625.626-.625h1.25c.344 0 .625.281.625.625v1.238z"/></svg>
