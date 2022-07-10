@@ -61,6 +61,7 @@ When installing the given `composer.json` some tasks are taken care of:
 * Theme (packages of type `drupal-theme`) will be placed in `web/themes/contrib/`
 * Profiles (packages of type `drupal-profile`) will be placed in `web/profiles/`
 * Creates `web/sites/default/files` directory.
+* Creates `./private-files` directory.
 
 # After installing the code
 

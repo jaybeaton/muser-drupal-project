@@ -149,7 +149,9 @@
             "@remove-git-submodules"
         ],
         "post-create-project-cmd": [
-            "mkdir -p web/sites/default/files"
+            "mkdir -p web/sites/default/files",
+            "mkdir private-files",
+            "mv vendor/harvesthq/chosen web/libraries/"
         ]
     },
     "extra": {
