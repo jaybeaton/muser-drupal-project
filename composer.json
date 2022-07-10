@@ -143,11 +143,13 @@
     "scripts": {
         "remove-git-submodules": "find . -mindepth 2 -type d -name .git | xargs rm -rf",
         "post-install-cmd": [
-            "@remove-git-submodules",
-            "mkdir -p web/sites/default/files"
+            "@remove-git-submodules"
         ],
         "post-update-cmd": [
             "@remove-git-submodules"
+        ],
+        "post-create-project-cmd": [
+            "mkdir -p web/sites/default/files"
         ]
     },
     "extra": {
