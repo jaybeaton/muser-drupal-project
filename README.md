@@ -36,14 +36,14 @@ for your setup.
 
 After that you can create the project:
 
-```
+```shell
 composer create-project jaybeaton/muser-drupal-project:9.x-dev some-dir --no-interaction
 ```
 
 With `composer require ...` you can download new dependencies to your 
 installation.
 
-```
+```shell
 cd some-dir
 composer require drupal/devel:~1.0
 ```
@@ -56,11 +56,11 @@ all files not excluded by the .gitignore file.
 
 When installing the given `composer.json` some tasks are taken care of:
 
-* Drupal will be installed in the `web`-directory.
+* Drupal will be installed in the `web` directory.
 * Modules (packages of type `drupal-module`) will be placed in `web/modules/contrib/`
 * Theme (packages of type `drupal-theme`) will be placed in `web/themes/contrib/`
 * Profiles (packages of type `drupal-profile`) will be placed in `web/profiles/`
-* Creates `web/sites/default/files`-directory.
+* Creates `web/sites/default/files` directory.
 
 # After installing the code
 
