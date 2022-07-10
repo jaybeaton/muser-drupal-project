@@ -1,0 +1,13 @@
+diff --git a/redirect.info.yml b/redirect.info.yml
+index 400bdce4c..32b8843ef 100644
+--- a/redirect.info.yml
++++ b/redirect.info.yml
+@@ -8,6 +8,8 @@ dependencies:
+  - drupal:path_alias
+  - drupal:link
+  - drupal:views
++ # This is added to avoid 'The ajax_history plugin does not exist' error @ Muser profile installation.
++ - views_ajax_history:views_ajax_history
+
+ # Information added by Drupal.org packaging script on 2021-12-13
+ version: '8.x-1.7'

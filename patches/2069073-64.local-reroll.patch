@@ -3,13 +3,13 @@ index b4dcb7ab..3fb11ef5 100644
 --- a/core/modules/tour/js/tour.es6.js
 +++ b/core/modules/tour/js/tour.es6.js
 @@ -30,7 +30,7 @@
-         .each(() => {
-           const model = new Drupal.tour.models.StateModel();
-           new Drupal.tour.views.ToggleTourView({
--            el: $(context).find('#toolbar-tab-tour'),
-+            el: $(context).find('.js-tour-start-button'),
-             model,
-           });
+         const model = new Drupal.tour.models.StateModel();
+         // eslint-disable-next-line no-new
+         new Drupal.tour.views.ToggleTourView({
+-          el: $(context).find('#toolbar-tab-tour'),
++          el: $(context).find('.js-tour-start-button'),
+           model,
+         });
 
 diff --git a/core/modules/tour/js/tour.js b/core/modules/tour/js/tour.js
 index 8893fc3b..653d397f 100644
