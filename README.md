@@ -81,13 +81,16 @@ to any standard Drupal cron jobs.
 Example crontab additions (assuming the document root for the Muser site is `/app/web`):
 
 ```shell
-*/5 * * * * cd /app/web && drush muser_system:set-current-round
-*/5 * * * * cd /app/web && drush muser_system:send-scheduled-emails
-*/5 * * * * cd /app/web && drush queue:run queue_mail
+# Check and set the current Round.
+* * * * * cd /app/web && drush muser_system:set-current-round > /dev/null 2>&1
+# Check for and send scheduled emails.
+* * * * * cd /app/web && drush muser_system:send-scheduled-emails > /dev/null 2>&1
+# Run queue_mail queue worker.
+* * * * * cd /app/web && drush queue:run queue_mail > /dev/null 2>&1
 ```
 
 You may need to modify these for your server.
 
-In order to actually send automated emails, you will need to edit your
+In order to allow the site to actually send automated emails, you will need to edit your
 `settings.php` / `settings.local.php` and set `$settings['do_not_send_scheduled_emails']`
 to `FALSE`.
