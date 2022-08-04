@@ -37,7 +37,8 @@ for your setup.
 After that you can create the project:
 
 ```shell
-composer create-project jaybeaton/muser-drupal-project:9.x-dev some-dir --no-interaction
+cd your-muser-base-directory
+composer create-project jaybeaton/muser-drupal-project:9.x-dev . --no-interaction
 ```
 
 With `composer require ...` you can download new dependencies to your 
