@@ -239,7 +239,8 @@
             },
             "drupal/core": {
                 "Allow Tours to be taken by users that cannot access the Toolbar (e.g. anonymous users)": "patches/2069073-64.local-reroll.patch",
-                "TypeError: Argument 1 passed to _editor_get_file_uuids_by_field() must implement interface Drupal\\\\Core\\\\Entity\\\\EntityInterface - Issue for users created by Shib": "https://www.drupal.org/files/issues/2018-11-08/2974156-editor-typeerror-9.patch"
+                "TypeError: Argument 1 passed to _editor_get_file_uuids_by_field() must implement interface Drupal\\\\Core\\\\Entity\\\\EntityInterface - Issue for users created by Shib": "https://www.drupal.org/files/issues/2018-11-08/2974156-editor-typeerror-9.patch",
+                "Make views_ajax_history a dependency of media_library to avoid 'The ajax_history plugin does not exist' error @ installation of media_library module view.": "patches/fix-installation-dependencies-issue.patch"
             },
             "drupal/entity_reference_revisions": {
                 "Views doesn't recognize relationship to host": "https://www.drupal.org/files/issues/2019-10-07/2799479-91-DO_NOT_COMMIT.patch",
@@ -253,9 +254,6 @@
             },
             "drupal/realname": {
                 "Real name changes the entity reference behavior with views": "https://www.drupal.org/files/issues/2020-06-28/autocomplete-condition-fix-3059311-5.patch"
-            },
-            "drupal/redirect": {
-                "Make views_ajax_history a dependency of redirect to avoid 'The ajax_history plugin does not exist' error @ installation of redirect module view.": "patches/fix-installation-dependencies-issue.patch"
             }
         }
     }
