@@ -152,6 +152,9 @@
     "conflict": {
         "drupal/drupal": "*"
     },
+    "provide": {
+        "drupal/media": "*"
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
