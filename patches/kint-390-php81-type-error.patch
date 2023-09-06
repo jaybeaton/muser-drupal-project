@@ -1,0 +1,18 @@
+diff --git a/src/Parser/Parser.php b/src/Parser/Parser.php
+index 5c7a40a3..50642b90 100644
+--- a/src/Parser/Parser.php
++++ b/src/Parser/Parser.php
+@@ -374,7 +374,11 @@ private function parseArray(array &$var, Value $o): Value
+             }
+ 
+             $stash = $val;
+-            $copy[$i] = $refmarker;
++            try {
++                $copy[$i] = $refmarker;
++            } catch (TypeError $e) {
++                $child->reference = true;
++            }
+             if ($val === $refmarker) {
+                 $child->reference = true;
+                 $val = $stash;
+
