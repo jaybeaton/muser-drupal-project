@@ -26,3 +26,28 @@ $settings['do_not_send_scheduled_emails'] = TRUE;
  */
 $settings['manage_all_round_fields'] = FALSE;
 
+// Custom colorsets for the theme may be added here or with
+// hook_muser_colorsets_alter(). Example:
+/*
+$settings['custom_colorsets'] = [
+  'colorset_ocean' => [
+    'name' => 'Ocean (Blue)',
+    'PRIMARY_COLOR' => '#001A57',
+    'SECONDARY_COLOR' => '#339898',
+    'BACKGROUND_COLOR' => '#F3F2F1',
+    'TITLE_COLOR' => '#001A57',
+    'TEXT_COLOR' => '#262626',
+    'MESSAGE_ERROR_BG' => '#C84E00',
+    'MESSAGE_WARNING_BG' => '#E89923',
+    'MESSAGE_STATUS_BG' => '#A1B70D',
+    'MESSAGE_ERROR_TEXT' => '#FFFFFF',
+    'MESSAGE_WARNING_TEXT' => '#FFFFFF',
+    'MESSAGE_STATUS_TEXT' => '#FFFFFF',
+    'TEXT_OVER_PRIMARY' => '#FFFFFF',
+    'TEXT_OVER_SECONDARY' => '#FFFFFF',
+    'PRIMARY_TEXT_OVER_WHITE' => 'var(--primary)',
+    'SECONDARY_TEXT_OVER_WHITE' => 'var(--secondary)',
+  ],
+];
+*/
+
