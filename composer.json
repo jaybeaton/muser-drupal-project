@@ -48,6 +48,19 @@
                 "type": "zip"
               }
             }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "jjj/chosen",
+                "version": "2.2.1",
+                "type": "drupal-library",
+                "source": {
+                    "url": "https://github.com/JJJ/chosen.git",
+                    "type": "git",
+                    "reference": "2.2.1"
+                }
+            }
         }
     ],
     "require": {
@@ -107,6 +120,7 @@
         "drupal/views_random_seed": "^1.3",
         "drush/drush": "^10 | ^11 | ^12",
         "jackmoore/colorbox": "^1.6",
+        "jjj/chosen": "2.2.1",
         "kenwheeler/slick": "^1.8",
         "kint-php/kint": "^4",
         "phpoffice/phpword": "^0.18.2",
@@ -142,8 +156,7 @@
         ],
         "post-create-project-cmd": [
             "mkdir -p web/sites/default/files",
-            "mkdir private-files",
-            "mv vendor/harvesthq/chosen web/libraries/"
+            "mkdir private-files"
         ]
     },
     "extra": {
