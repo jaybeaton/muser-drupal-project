@@ -1,0 +1,78 @@
+diff --git a/drush/src/Commands/sql/SqlCommands.php b/drush/src/Commands/sql/SqlCommands.php
+index 136398b46..a2a3523c2 100644
+--- a/drush/src/Commands/sql/SqlCommands.php
++++ b/drush/src/Commands/sql/SqlCommands.php
+@@ -102,7 +102,7 @@ public function create($options = ['db-su' => self::REQ, 'db-su-pw' => self::REQ
+     }
+
+     /**
+-     * Drop all tables in a given database.
++     * Drop all views and tables in a given database.
+      */
+     #[CLI\Command(name: self::DROP, aliases: ['sql-drop'])]
+     #[CLI\Bootstrap(level: DrupalBootLevels::MAX, max_level: DrupalBootLevels::CONFIGURATION)]
+@@ -112,9 +112,13 @@ public function drop($options = []): void
+     {
+         $sql = SqlBase::create($options);
+         $db_spec = $sql->getDbSpec();
+-        if (!$this->io()->confirm(dt('Do you really want to drop all tables in the database !db?', ['!db' => $db_spec['database']]))) {
++        if (!$this->io()->confirm(dt('Do you really want to drop all views and tables in the database !db?', ['!db' => $db_spec['database']]))) {
+             throw new UserAbortException();
+         }
++        $views = $sql->listViewsQuoted();
++        if (!$sql->dropViews($views)) {
++            throw new \Exception('Unable to drop all views: ' . $sql->getProcess()->getErrorOutput());
++        }
+         $tables = $sql->listTablesQuoted();
+         if (!$sql->drop($tables)) {
+             throw new \Exception('Unable to drop all tables: ' . $sql->getProcess()->getErrorOutput());
+diff --git a/drush/src/Sql/SqlMysql.php b/drush/src/Sql/SqlMysql.php
+index cf56e636a..d9d2594e7 100644
+--- a/drush/src/Sql/SqlMysql.php
++++ b/drush/src/Sql/SqlMysql.php
+@@ -146,6 +146,45 @@ public function listTablesQuoted(): array
+         return $tables;
+     }
+
++    public function listViews(): array
++    {
++        $views = [];
++        $this->alwaysQuery("SHOW FULL TABLES WHERE TABLE_TYPE = 'VIEW';");
++        if ($out = trim($this->getProcess()->getOutput())) {
++          // Each line will look like "view_name    VIEW".
++                $out =   preg_replace('/\sVIEW' . PHP_EOL . '/', PHP_EOL, $out . PHP_EOL);
++            $views = explode(PHP_EOL, $out);
++          $views = array_filter(array_map('trim', $views));
++        }
++        return $views;
++    }
++
++    public function listViewsQuoted(): array
++    {
++        $views = $this->listViews();
++        foreach ($views as &$view) {
++          $view = "`$view`";
++        }
++        return $views;
++    }
++
++  /**
++   * Drop specified views.
++   *
++   * @param array $views
++   *   An array of view names
++   *   True if successful, FALSE if failed.
++   */
++  public function dropViews(array $views): ?bool
++  {
++    $return = true;
++    if ($views) {
++      $sql = 'DROP VIEW ' . implode(', ', $views);
++      $return = $this->query($sql);
++    }
++    return $return;
++  }
++
+     public function dumpCmd($table_selection): string
+     {
+         $dbSpec = $this->getDbSpec();
