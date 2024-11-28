@@ -38,7 +38,7 @@ After that you can create the project:
 
 ```shell
 cd your-muser-base-directory
-composer create-project jaybeaton/muser-drupal-project:9.x-dev . --no-interaction
+composer create-project jaybeaton/muser-drupal-project:10.x-dev . --no-interaction
 ```
 
 With `composer require ...` you can download new dependencies to your 
@@ -46,7 +46,7 @@ installation.
 
 ```shell
 cd some-dir
-composer require drupal/devel:~1.0
+composer require 'drupal/devel:^5.0'
 ```
 
 The `composer create-project` command passes ownership of all files to the 
