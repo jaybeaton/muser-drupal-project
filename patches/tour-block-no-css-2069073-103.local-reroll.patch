@@ -1,0 +1,188 @@
+diff --git a/core/modules/tour/js/tour.js b/core/modules/tour/js/tour.js
+index 43858e4e2..f6602c606 100644
+--- a/core/modules/tour/js/tour.js
++++ b/core/modules/tour/js/tour.js
+@@ -29,7 +29,7 @@
+         const model = new Drupal.tour.models.StateModel();
+         // eslint-disable-next-line no-new
+         new Drupal.tour.views.ToggleTourView({
+-          el: $(context).find('#toolbar-tab-tour'),
++          el: $(context).find('.js-tour-start-button'),
+           model,
+         });
+
+diff --git a/core/modules/tour/src/Plugin/Block/TourButtonBlock.php b/core/modules/tour/src/Plugin/Block/TourButtonBlock.php
+new file mode 100644
+index 000000000..8b836ed5c
+--- /dev/null
++++ b/core/modules/tour/src/Plugin/Block/TourButtonBlock.php
+@@ -0,0 +1,64 @@
++<?php
++
++namespace Drupal\tour\Plugin\Block;
++
++use Drupal\Core\Access\AccessResult;
++use Drupal\Core\Block\BlockBase;
++use Drupal\Core\Session\AccountInterface;
++
++/**
++ * Provides a block containing a Tour button.
++ *
++ * @Block(
++ *   id = "tour_button_block",
++ *   admin_label = @Translation("Tour button")
++ * )
++ */
++class TourButtonBlock extends BlockBase {
++
++  /**
++   * {@inheritdoc}
++   */
++  public function build() {
++    $build = [
++      'button' => [
++        '#type' => 'html_tag',
++        '#tag' => 'button',
++        '#value' => $this->t('Take a tour'),
++        '#attributes' => [
++          'aria-pressed' => 'false',
++          'type' => 'button',
++          'class' => ['button tour-button'],
++        ],
++      ],
++      '#attributes' => [
++        'class' => ['hidden', 'js-tour-start-button'],
++      ],
++      '#attached' => [
++        'library' => [
++          'tour/tour',
++          'tour/tour-styling',
++        ],
++      ],
++    ];
++
++    return $build;
++  }
++
++  /**
++   * {@inheritdoc}
++   */
++  public function defaultConfiguration() {
++    return [
++      'label_display' => FALSE,
++    ] + parent::defaultConfiguration();
++  }
++
++  /**
++   * {@inheritdoc}
++   */
++  protected function blockAccess(AccountInterface $account) {
++    return AccessResult::allowedIfHasPermission($account, 'access tour');
++  }
++
++}
+diff --git a/core/modules/tour/tests/src/FunctionalJavascript/TourButtonBlockTest.php b/core/modules/tour/tests/src/FunctionalJavascript/TourButtonBlockTest.php
+new file mode 100644
+index 000000000..49fd5c6f1
+--- /dev/null
++++ b/core/modules/tour/tests/src/FunctionalJavascript/TourButtonBlockTest.php
+@@ -0,0 +1,86 @@
++<?php
++
++namespace Drupal\Tests\tour\FunctionalJavascript;
++
++use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
++use Drupal\user\RoleInterface;
++
++/**
++ * Tests that tours can be started through the tour button block.
++ *
++ * @group tour
++ */
++class TourButtonBlockTest extends WebDriverTestBase {
++
++  /**
++   * {@inheritdoc}
++   */
++  protected $defaultTheme = 'stark';
++
++  /**
++   * {@inheritdoc}
++   */
++  public static $modules = ['block', 'tour', 'tour_test'];
++
++  /**
++   * {@inheritdoc}
++   */
++  protected function setUp(): void {
++    parent::setUp();
++
++    // Place the tour button block in the sidebar.
++    $this->drupalPlaceBlock('tour_button_block');
++
++    // Grant permission to view tours to anonymous users.
++    user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, ['access tour']);
++  }
++
++  /**
++   * Tests that tours can be started using the tour button block.
++   */
++  public function testTourButtonBlock() {
++    // Check that the tour button is not visible on a page that does not offer a
++    // tour.
++    $this->drupalGet('user');
++    $this->assertFalse($this->getTourButton()->isVisible());
++
++    // Check that tours can be started by anonymous users if they have the
++    // relevant permission and the block with the tour button is present.
++    $this->drupalGet('tour-test-1');
++
++    // The tour button should be visible.
++    $this->assertTrue($this->getTourButton()->isVisible());
++    $this->assertEquals($this->getTourButton()->getText(), 'Take a tour');
++
++    // The tour should not yet have been started, so the first tour tip should
++    // not be visible.
++    $tour_tip = $this->getSession()->getPage()->find('css', '.tip-tour-test-1');
++    $this->assertFalse($tour_tip->isVisible());
++
++    // Click the button. Now the tour tip should become visible.
++    $this->getTourButton()->click();
++    $this->assertJsCondition("jQuery('.tip-tour-test-1').is(':visible')", 10000);
++
++    // When the user doesn't have permission to view tours, the button should
++    // not be present.
++    user_role_revoke_permissions(RoleInterface::ANONYMOUS_ID, ['access tour']);
++    $this->getSession()->getDriver()->reload();
++    $this->assertFalse($this->getTourButton());
++  }
++
++  /**
++   * Returns the tour button that is present in the page.
++   *
++   * @return \Behat\Mink\Element\NodeElement|false
++   *   The tour button, or FALSE if there is no tour button.
++   */
++  protected function getTourButton() {
++    /** @var \Behat\Mink\Element\NodeElement[] $elements */
++    $elements = $this->cssSelect('.js-tour-start-button button');
++    if (empty($elements)) {
++      return FALSE;
++    }
++    return reset($elements);
++  }
++
++}
+diff --git a/core/modules/tour/tour.module b/core/modules/tour/tour.module
+index e6bbd2ae6..76264c934 100644
+--- a/core/modules/tour/tour.module
++++ b/core/modules/tour/tour.module
+@@ -58,7 +58,7 @@ function tour_toolbar() {
+       ],
+     ],
+     '#wrapper_attributes' => [
+-      'class' => ['tour-toolbar-tab', 'hidden'],
++      'class' => ['tour-toolbar-tab', 'hidden', 'js-tour-start-button'],
+       'id' => 'toolbar-tab-tour',
+     ],
+     '#attached' => [
