@@ -7,7 +7,7 @@ index 43858e4e2..f6602c606 100644
          // eslint-disable-next-line no-new
          new Drupal.tour.views.ToggleTourView({
 -          el: $(context).find('#toolbar-tab-tour'),
-+          el: $(context).find('.js-tour-start-button'),
++          el: $('.js-tour-start-button'),
            model,
          });
 
